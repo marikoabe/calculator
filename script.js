@@ -15,11 +15,12 @@ function multiply(a, b) {
 }
 
 function divide(a, b) {
-    if (parseInt(b) = 0) {
-        return "DOES NOT WORK!!!"
+    if (parseInt(b) === 0) {
+        return "the limit does not exist"
     } else {
         let divideTotal = parseInt(a) / parseInt(b);
-        return divideTotal;    
+        let divideTotalRounded = Math.round(100 * divideTotal) / 100;
+        return divideTotalRounded;    
     }
 }
 
@@ -31,12 +32,52 @@ const digitButtons = document.querySelectorAll(".digit-button");
 digitButtons.forEach((button) => {
     button.addEventListener("click", function(e) {
         value = button.textContent;
-        displayValue += value;
-        populateDisplay(displayValue);
+
+        if (value === ".") {
+            if (displayValue.indexOf(".") === 1) {
+                return;
+            } else {
+                displayValue += value;
+                populateDisplay(displayValue);
+            }
+        } else {
+            displayValue += value;
+            populateDisplay(displayValue);
+        }
     });
 })
 
-// Functiont to update calculator display
+
+// Add keyboard functionality to buttons
+document.addEventListener("keyup", function(e) {
+    let keyPressed =  `${e.key}`;
+    console.log(keyPressed);
+    console.log(e.shiftKey);
+    let keyValue = parseInt(keyPressed);
+
+    if (Number.isInteger(keyValue) || keyPressed === ".") {     // Keyboard functionality for digit buttons
+        value = `${e.key}`;
+        if (value === ".") {
+            if (displayValue.indexOf(".") === 1) {
+                return;
+            } else {
+                displayValue += value;
+                populateDisplay(displayValue);
+            }
+        } else {
+            displayValue += value;
+            populateDisplay(displayValue);
+        }
+    } else if (keyPressed === "Backspace" || keyPressed === "Delete") {      // Keyboard functionality for AC button
+        allClear();
+    } else if (keyPressed === "+" || keyPressed === "-" || keyPressed === "*" || keyPressed === "/") {      // Keyboard functionality for operator buttons
+        determineOperator(keyPressed);
+    } else if (keyPressed === "Enter" || keyPressed === "=") {      // Keyboard functionality for equals button
+        equals();
+    }
+});
+
+// Function to update calculator display
 let calcDisplay = document.querySelector("#calc-display");
 
 function populateDisplay(displayValue) {
@@ -62,9 +103,9 @@ function determineOperator(button) {
             operator = "add";
         } else if (button == "-") {
             operator = "subtract";
-        } else if (button == "x") {
+        } else if (button == "x" || button == "*") {
             operator = "multiply";
-        } else if (button == "÷") {
+        } else if (button == "÷" || button == "/") {
             operator = "divide";
         }
         storeDigits();
@@ -128,16 +169,28 @@ function operate(operator, a, b) {
     
 
 const equalButton = document.querySelector("#equals")
-equalButton.addEventListener("click", function(e) {
+equalButton.addEventListener("click", equals);
+
+function equals() {
     storeDigits();
     operate(operator, a, b);
-})
+}
 
 const clearButton = document.querySelector("#clear");
-clearButton.addEventListener("click", function(e){
+clearButton.addEventListener("click", allClear);
+
+function allClear() {
     operator = "";
     a = "";
     b = "";
     displayValue = "";
-    calcDisplay.textContent = "Woohoo";
-})
+    calcDisplay.textContent = "0";
+}
+
+/*
+Missing features:
+- Adding a 0 in front of the number if a decimal point is entered in the beginning before any numbers are
+- Backspace button for users to redo their input if they make a mistake (!= AC)
+- Bug fix -> when an operator is clicked and then equals before the second number, NaN is returned
+- Prettify UI
+*/
